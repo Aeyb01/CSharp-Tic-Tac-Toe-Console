@@ -86,7 +86,7 @@ Load : JSON file → ScoreData → LeaderBoard
 
 ## What's Next
 
-- [ ] Some comments are in french of which they'll be updated and removed in the future
+- [ ] Some comments are in French of which they'll be updated to English and removed in the future
 - [ ] Smarter AI (strategy instead of random)
 - [ ] Unit tests for `RuleEngine.CheckWin()`
 - [ ] Port logic to Unity (keeping all game logic Unity-independent) / Or perhaps a GUI application
