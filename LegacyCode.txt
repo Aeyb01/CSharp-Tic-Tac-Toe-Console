@@ -1,0 +1,405 @@
+// UpdateBoard.cs
+// So this script takes the coordination that the player entered
+// Then it returns it to `Board.cs` script in order to show the updated board
+// the question now is should it return / draw `X` and `O`
+// Or it'll be considered like doing too much like that?
+// Yes!! It has to return an X or an O as it'll be the one responsible
+// for giving an exact input for an exact coordination
+// Taking all of that together: this script must know
+// Which player's turn it is in order to know what to return
+// Whether an X or an O
+// Nope It actually should not! this script should ONLY:
+// Take the input of the player, validates it AND return the Coordination!
+
+using System;
+
+
+namespace TicTacToe
+{
+    public class UpdateBoard
+    {
+        public (int row, int col) BoardInput(GameMode gameMode, TurnWinner CurrentPlayer)
+        {
+            string PlayerInput = UserInput(gameMode, CurrentPlayer);
+
+            try
+            {
+                PlayerInput = ValidateInput(PlayerInput);
+            }
+            catch(ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+            
+            (int row, int col) = PlaceMove(PlayerInput);
+
+            Console.WriteLine($"Coordination: {row}, {col}");
+
+            return (row, col);
+        }
+
+        string UserInput(GameMode gameMode, TurnWinner CurrentPlayer)
+        {       
+            string PlayerInput;
+
+            if (gameMode == GameMode.P1)
+            {
+                Console.Write("Your Turn: ");
+                PlayerInput = Console.ReadLine() ?? "";
+            }
+            else
+            {
+                if (CurrentPlayer == TurnWinner.Player1)
+                {
+                    Console.Write("Player 1 turn: ");
+                    PlayerInput = Console.ReadLine() ?? "";
+                }
+                else
+                {
+                    Console.Write("Player 2' turn: ");
+                    PlayerInput = Console.ReadLine() ?? "";
+                }
+            }
+            return PlayerInput;
+        }
+
+
+
+
+
+
+
+
+
+        string ValidateInput(string Input)
+        {
+            if (string.IsNullOrWhiteSpace(Input))
+            {
+                throw new ArgumentException("Invalid input.");
+            }
+
+            Input = Input.ToLower();
+
+            if (Input == "exit" || Input == "a1"|| Input == "a2"|| Input == "a3"|| 
+            Input == "b1"|| Input == "b2"|| Input == "b3"||
+            Input == "c1"|| Input == "c2"|| Input == "c3")
+            {
+                return Input;
+            }
+
+            else
+            {
+                throw new ArgumentException("Invalid input.");
+            }
+        }
+
+
+
+
+
+
+        (int row, int col) PlaceMove(string Input)
+        {
+            // Dans cette méthode on savoir quel indice l'utilisateur a saisi
+            // Puis on l'envoit vers `TranslateIndex` pour remplacer cette indice
+            // spécifique par un caractère de type X ou un O
+
+            if (Input[0] == 'a')
+            {
+                if (Input[1] == '1')
+                {
+                    return (0, 0);
+                }
+                else if(Input[1] == '2')
+                {   
+                    return (0, 1);
+                }
+                else
+                {
+                    return (0, 2);
+                }
+            }
+            else if(Input[0] == 'b')
+            {
+                if (Input[1] == '1')
+                {
+                    return (1, 0);
+                }
+                else if(Input[1] == '2')
+                {   
+                    return (1, 1);
+                }
+                else
+                {
+                    return (1, 2);
+                }
+            }
+            else
+            {
+                if (Input[1] == '1')
+                {
+                    return (2, 0);
+                }
+                else if(Input[1] == '2')
+                {   
+                    return (2, 1);
+                }
+                else
+                {
+                    return (2, 2);
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+/*// PvPMode.cs
+
+namespace TicTacToe
+{
+    public class PvPMode
+    {
+        public void PvP(GameMode gameMode, BoardData board, int Turn)
+        {
+            TurnWinner CurrentPlayer;
+            (int row, int col) = (0, 0);
+            
+            // Which player starts first? We need to initiate the toss
+            CurrentPlayer = Toss.DecideFirstPlayer(gameMode);
+            
+            while (true)
+            {
+                // Now after we know which player starts we need to 
+                // Initiate the game as like prompt him for which coordination
+    
+                // However before we do anything we'll have to show the board to the player
+    
+                Board.DrawBoard(board.board);
+    
+                // Now we prompt the player for their input and parse it
+                (row, col) = PlayerInputHandler.GetCoordination(gameMode, CurrentPlayer, board);
+
+                // call board.SetCell to fill up the cell with the right input
+                CellState state = CurrentPlayer == TurnWinner.Player1 ? CellState.X : CellState.O;
+            
+                // Now we pass the coordinations to BoardData.cs in order to fill up the
+                // player's input
+
+                board.SetCell(row, col, state);
+
+                // Now we show the board
+                Board.DrawBoard(board.board);
+
+                // Now we alternate between the turns and the players
+    
+                (CurrentPlayer, Turn) = TurnBaseLogic.TurnBase(CurrentPlayer, Turn);
+            }
+            
+        }
+    }
+}*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*// OfflineMode.cs
+
+/*
+1. Toss → décide qui commence (Joueur ou AI)
+
+Si Joueur commence :
+  └─ Tour Joueur → saisie → valider → parser → SetCell
+  └─ Tour AI → coordination aléatoire → SetCell
+  └─ répéter
+
+Si AI commence :
+  └─ Tour AI → coordination aléatoire → SetCell
+  └─ Tour Joueur → saisie → valider → parser → SetCell
+  └─ répéter
+
+
+namespace TicTacToe
+{
+    public class OfflineMode
+    {
+        public void Offline(GameMode gameMode, BoardData board, int Turn)
+        {
+            (int row, int col) = (0, 0);
+
+            // We need to first know who won the toss
+
+            TurnWinner CurrentPlayer = Toss.DecideFirstPlayer(gameMode);
+
+            // Now we'll initiate a loop in order to loop through the game
+            // However it's going to depend on whether it's the player's turn
+            // Or the AI turn, thus we'll need to use else if statement
+
+            while (true)
+            {
+                if (CurrentPlayer == TurnWinner.Player1)
+                {
+                    PlayerTurn(gameMode, CurrentPlayer, board);
+
+                    // Now we alternate between the turns
+    
+                    (CurrentPlayer, Turn) = TurnBaseLogic.TurnBase(CurrentPlayer, Turn);
+                }
+                else
+                {
+                    (row, col) = AI.Ai(board.board);
+
+                    CellState state = CurrentPlayer == TurnWinner.Player1 ? CellState.X : CellState.O;
+            
+                    // Now we pass the coordinations to BoardData.cs in order to fill up the
+                    // player's input
+
+                    board.SetCell(row, col, state);
+
+                    // Now we show the board
+                    Board.DrawBoard(board.board);
+
+                    // Now we alternate between the turns
+    
+                    (CurrentPlayer, Turn) = TurnBaseLogic.TurnBase(CurrentPlayer, Turn);
+                }
+            }
+
+
+        }
+
+        void PlayerTurn(GameMode gameMode, TurnWinner CurrentPlayer, BoardData board)
+        {
+            (int row, int col) = (0, 0);
+            
+            Board.DrawBoard(board.board);
+    
+            // Now we prompt the player for their input and parse it
+            (row, col) = PlayerInputHandler.GetCoordination(gameMode, CurrentPlayer, board);
+
+            // call board.SetCell to fill up the cell with the right input
+            CellState state = CurrentPlayer == TurnWinner.Player1 ? CellState.X : CellState.O;
+            
+            // Now we pass the coordinations to BoardData.cs in order to fill up the
+            // player's input
+
+            board.SetCell(row, col, state);
+
+            // Now we show the board
+            Board.DrawBoard(board.board);
+
+        }
+
+    }
+}
+*/
+
+
+
+
+
+public static Players ReturnWinner(GameMode gameMode, GameState Condition)
+        {
+            // So first of all in order to know who actually won
+            // We need to know the game mode in order to decide whether
+            // It's going to be between an AI or a Player
+
+            if (gameMode == GameMode.OfflineMode)
+            {
+                // Now we know that if the winner is X
+                // that means it's Player1 else it's AI
+                // Great I'll impliment it now
+                if (Condition == GameState.XWins)
+                {
+                    // Here we return the winner which is Player
+                    return Players.Player1;
+                }
+                else
+                {
+                    return Players.AI;
+                }
+            }
+            // the same exact logic for the PVP mode
+            else
+            {
+                if (Condition == GameState.XWins)
+                {
+                    return Players.Player1;
+                }
+                else
+                {
+                    return Players.Player2;
+                }
+            }
+
+
+
+/*
+un mini schéma ASCII du flux complet
+
+Toss.cs
+  → décide qui commence (Player1 ou Player2)
+  ↓
+RuleEngine.cs  ← le cerveau, garde board[3,3] en mémoire
+  → boucle de jeu :
+      1. TurnBaseLogic.cs  → dit c'est X ou O qui joue
+      2. board.cs          → affiche le tableau actuel
+      3. Updateboard.cs    → prend la saisie, retourne (row, col)
+      4. RuleEngine        → écrit X/O dans board[row, col]
+      5. vérifie si victoire → si oui, fin
+      6. sinon → retour à l'étape 1
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Toss script is meant to decide which one starts first
+
+// We do know that Toss.cs must return something in order
+
+// To decide which one's turn it is
+
+// The question is do I need to pass something into it?
+
+// I think so because the toss must be shuffling between
+
+// Two things, either the AI and player OR player 1 and player 2
+
+// I think that's a valid reason on what should I be passing!
+
+// Now the question is how to shuffle between the two options FAIRLY
+
+// And return something?
+
+// Second supposing that X starts first then how would my
+
+// Program be smart enough to understand that?
