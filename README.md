@@ -1,6 +1,6 @@
 # Tic Tac Toe — C# Console
 
-A fully functional Tic Tac Toe game built in pure C# console.  
+A fully functional Tic Tac Toe game built in pure C# console with more than 1200 lines of structured code.
 
 The usage of AI was limited to organise and bettre structure my code and to "speed-up" the debugging process
 
